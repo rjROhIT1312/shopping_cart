@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const userModel = require('../model/userModel')
+const {uploadFile}  = require('./awsController')
 
 const { isValidPassword, isValidEmail, isIdValid, isValidString, isValidName, isValidMobile } = require("../validator/validator")
 
@@ -7,9 +9,11 @@ const registerUser = async (req, res) => {
     try {
         const bodyData = req.body
 
+        const profileImage = req.files
+
        if(typeof(bodyData)=="undefined"||Object.keys(bodyData).length==0) return res.status(400).send({status:false,message:"Request body doesn't be empty"})
 
-        const { fname, lname, email, profileImage, phone, password, address } = bodyData
+        const { fname, lname, email, phone, password, address } = bodyData
 
         if (!fname) return res.status(400).send({ status: false, message: 'fname is required' })
         if(!isValidString(fname))  return res.status(400).send({status:false,message:"Please enter the valid fname"})
@@ -23,7 +27,7 @@ const registerUser = async (req, res) => {
         let emailPresent = await userModel.findOne({email:email})
         if (emailPresent) return res.status(400).send({status:false,message:"Email is already exist"})
 
-        if (!profileImage) return res.status(400).send({ status: false, message: 'profileImage is required' })
+        //if (!profileImage) return res.status(400).send({ status: false, message: 'profileImage is required' })
 
         if (!phone) return res.status(400).send({ status: false, message: 'phone is required' })
         if(!isValidMobile(phone))  return res.status(400).send({status:false,message:"Please enter the valid Mobile Number"})
@@ -34,11 +38,22 @@ const registerUser = async (req, res) => {
         if (!password) return res.status(400).send({ status: false, message: 'password is required' })
         if(!isValidPassword(password))  return res.status(400).send({status:false,message:"Password must contain 1 Uppercase and Lowecase letter with at least 1 special charcter , password length should be 8-15"})
 
+        if(profileImage && profileImage.length > 0){
+
+        let uploadProfileImage = await uploadFile(profileImage[0]);
+          bodyData.profileImage = uploadProfileImage;
+    
+        } else {
+          return res
+            .status(400)
+            .send({ status: false, message: "Upload profile Image" });
+        }
+
+        bodyData.password =await bcrypt.hash(password,10)
 
         const userData = await userModel.create(bodyData)
 
         return res.status(201).send({ status: true, message: "User created successfully", data: userData })
-
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -54,10 +69,15 @@ const login = async (req, res) => {
         if (!email) return res.status(400).send({ status: false, message: 'email is required' })
         if (!password) return res.status(400).send({ status: false, message: 'password is required' })
 
+        
+        const userData = await userModel.findOne({ email: email })
+        if(!userData) return res.status(404).send({status:false,message:"Email is invalid"})
 
+        let checkPassword = await bcrypt.compare(password, userData.password)
 
-        const userData = await userModel.findOne({ email: email, password: password })
-        if(!userData) return res.status(404).send({status:false,message:"Email or Password is invalid"})
+        if(!checkPassword){
+            return res.status(400).send({status : false , message : "Incorrect Password."})
+        }
 
         const userId = userData._id
 
@@ -74,4 +94,23 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, login }
+
+// GET USER PROFILE
+
+const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.params.userId
+
+        const userData = await userModel.findById(userId)
+
+    
+        return res.status(200).send({ status: true, message: "User profile details", data: userData })
+
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+
+}
+
+module.exports = { registerUser, login, getUserProfile }

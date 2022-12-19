@@ -8,7 +8,7 @@ aws.config.update({
 
 // UPLOADILE FUNCTION
 
-let uploadFile = async (file) => {
+exports.uploadFile = async (file) => {
 
     return new Promise(function (resolve, reject) {
 
@@ -32,24 +32,26 @@ let uploadFile = async (file) => {
     })
 }
 
-// CREATING AWS LINK
+// module.exports = uploadFile
 
-exports.createLink = async (req, res) => {
-    try {
-        let files = req.files
+// // CREATING AWS LINK
 
-        if (files && files.length > 0) {
+// exports.createLink = async (req, res) => {
+//     try {
+//         let files = req.files
 
-            let uploadedFileURL = await uploadFile(files[0])
-            return res.status(201).send({ status: true, message: "file uploaded succesfully", data: uploadedFileURL })
-        }
-        else {
-            return res.status(400).send({ status: false, message: "No file found" })
-        }
+//         if (files && files.length > 0) {
 
-    }
-    catch (error) {
-        console.log(error)
-        return res.status(500).send({ status: false, message: error })
-    }
-}
+//             let uploadedFileURL = await uploadFile(files[0])
+//             return res.status(201).send({ status: true, message: "file uploaded succesfully", data: uploadedFileURL })
+//         }
+//         else {
+//             return res.status(400).send({ status: false, message: "No file found" })
+//         }
+
+//     }
+//     catch (error) {
+//         console.log(error)
+//         return res.status(500).send({ status: false, message: error })
+//     }
+// }
