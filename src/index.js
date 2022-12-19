@@ -1,9 +1,10 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const multer = require('multer')
 const route = require('./route/routes')
 const app = express()
 
-app.use(express.json())
+app.use(multer().any())
 
 mongoose.set('strictQuery', true)
 
