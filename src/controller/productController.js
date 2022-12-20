@@ -153,6 +153,7 @@ const getProductByParams = async (req, res) => {
             return res.status(400).send({ status: false, message: "product id is not valid" })
 
         const productData = await productModel.findById(productId)
+        if(!productData) return res.status(400).send({ status: false, message: "No product Found with this id" })
 
         if (productData.isDeleted == true)
             return res.status(400).send({ status: false, message: "The product with this Id is Deleted." })
