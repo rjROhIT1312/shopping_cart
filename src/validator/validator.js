@@ -36,6 +36,12 @@ const isValidName = function (name) {
   }
 };
 
+const isValidProductName = function (name) {
+  if (/^[a-zA-Z0-9 ]+$/.test(name)) {
+    return true;
+  }
+};
+
 //==============================// isValidMobile //===============================
 
 const isValidMobile = function (mobile) {
@@ -59,6 +65,17 @@ const isValidPassword = function (pw) {
   if (pass.test(pw)) return true;
 };
 
+const isValidDecimalNumber = function (decimal) {
+  return /^(\d+\.?\d*)$/.test(decimal);
+}
+
+const isValidSize = function(value){
+  return ["S", "XS","M","X", "L","XXL", "XL"].includes(value)
+}
+
+const isValidPrice = function (price) {
+  return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price)
+}
 //=============================// module exports //================================
 
-module.exports = { isValidPassword, isValidEmail, isIdValid, isValidString, isValidNumber, isValidName, isValidadd, isValidPin, isValidMobile }
+module.exports = { isValidPassword, isValidEmail, isIdValid,isValidDecimalNumber, isValidString, isValidNumber, isValidName, isValidadd, isValidPin,isValidProductName, isValidMobile,isValidSize, isValidPrice }

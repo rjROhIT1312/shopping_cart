@@ -6,7 +6,6 @@ const { isIdValid } = require("../validator/validator")
 const authentication = async (req, res, next) => {
     try {
         let token = req.headers["authorization"]
-        console.log(token)
 
         if (!token) {
             return res.status(400).send({ status: false, message: "Please provide token." })

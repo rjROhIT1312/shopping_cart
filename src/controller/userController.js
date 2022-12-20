@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
         if (phoneCheck) return res.status(400).send({ status: false, message: "Mobile Number already exists" })
 
         if (!password) return res.status(400).send({ status: false, message: 'password is required' })
-        if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charcter , password length should be 8-15" })
+        if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charachter , password length should be 8-15 charachter. ex - Rahul@123" })
 
         if (profileImage && profileImage.length > 0) {
             let uploadProfileImage = await uploadFile(profileImage[0]);
@@ -56,23 +56,37 @@ const registerUser = async (req, res) => {
 
         // ---------> Shipping Address <---------
 
-        //if (!(address.shipping.street)) return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
-        if (!isValidString(adressObj.shipping.street)) return res.status(400).send({ status: false, message: "shipping Street is mandatory" })
-        if (!isValidadd(adressObj.shipping.street)) return res.status(400).send({ status: false, message: "shipping street containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidString(adressObj.shipping.city)) return res.status(400).send({ status: false, message: "city is mandatory" })
-        if (!isValidadd(adressObj.shipping.city)) return res.status(400).send({ status: false, message: "shipping city containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidNumber(adressObj.shipping.pincode)) return res.status(400).send({ status: false, message: "shipping pincode is mandatory" })
-        if (!isValidPin(adressObj.shipping.pincode)) return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
+        if (!(adressObj.shipping))
+            return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
+        if (!isValidString(adressObj.shipping.street))
+            return res.status(400).send({ status: false, message: "shipping Street is mandatory" })
+        if (!isValidadd(adressObj.shipping.street))
+            return res.status(400).send({ status: false, message: "shipping street containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidString(adressObj.shipping.city))
+            return res.status(400).send({ status: false, message: "city is mandatory" })
+        if (!isValidadd(adressObj.shipping.city))
+            return res.status(400).send({ status: false, message: "shipping city containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidNumber(adressObj.shipping.pincode))
+            return res.status(400).send({ status: false, message: "shipping pincode is mandatory" })
+        if (!isValidPin(adressObj.shipping.pincode))
+            return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
 
         // ---------> Billing Address <---------
 
-        //if (!isValidString(address.billing)) return res.status(400).send({ status: false, message: "Please provide address for billing" })
-        if (!isValidString(adressObj.billing.street)) return res.status(400).send({ status: false, message: "billing Street is mandatory" })
-        if (!isValidadd(adressObj.billing.street)) return res.status(400).send({ status: false, message: "billing street containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidString(adressObj.billing.city)) return res.status(400).send({ status: false, message: "city is mandatory" })
-        if (!isValidadd(adressObj.billing.city)) return res.status(400).send({ status: false, message: "billing city containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidNumber(adressObj.billing.pincode)) return res.status(400).send({ status: false, message: " billing pincode is mandatory" })
-        if (!isValidPin(adressObj.billing.pincode)) return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
+        if (!isValidString(adressObj.billing))
+            return res.status(400).send({ status: false, message: "Please provide address for billing" })
+        if (!isValidString(adressObj.billing.street))
+            return res.status(400).send({ status: false, message: "billing Street is mandatory" })
+        if (!isValidadd(adressObj.billing.street))
+            return res.status(400).send({ status: false, message: "billing street containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidString(adressObj.billing.city))
+            return res.status(400).send({ status: false, message: "city is mandatory" })
+        if (!isValidadd(adressObj.billing.city))
+            return res.status(400).send({ status: false, message: "billing city containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidNumber(adressObj.billing.pincode))
+            return res.status(400).send({ status: false, message: " billing pincode is mandatory" })
+        if (!isValidPin(adressObj.billing.pincode))
+            return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
 
 
         bodyData.password = await bcrypt.hash(password, 10)
@@ -153,32 +167,93 @@ const updateUser = async (req, res) => {
 
         if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Please provide some data in body to update." })
 
-        const { fname, lname, email, phone, password, address } = bodyData
+        const { fname, lname, email, phone, password, address} = bodyData
 
-        if (!fname) return res.status(400).send({ status: false, message: 'fname is required' })
-        if (!isValidString(fname)) return res.status(400).send({ status: false, message: "Please enter the valid fname" })
-        if (!isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter the valid fname(SpecialCase & Number is not Allowed)" })
+        if (typeof (fname) !== "undefined") {
+            if (!isValidName(fname)) {
+                return res.status(400).send({ status: false, message: "Please provide valid fname." })
+            }
+        }
 
-        if (!lname) return res.status(400).send({ status: false, message: 'lname is required' })
-        if (!isValidString(lname)) return res.status(400).send({ status: false, message: "Please enter the valid lname" })
-        if (!isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter the valid lname(SpecialCase & Number is not Allowed)" })
+        if (typeof (lname) !== "undefined") {
+            if (!isValidName(lname)) {
+                return res.status(400).send({ status: false, message: "Please provide valid lname." })
+            }
+        }
 
-        if (!email) return res.status(400).send({ status: false, message: 'email is required' })
-        if (!isValidEmail(email)) return res.status(400).send({ status: false, message: "Please enter the valid email" })
+        if (email) {
+            if (!isValidEmail(email)) {
+                return res.status(400).send({ status: false, message: "Please provide valid email." })
+            }
+            const uniqueCheck = await userModel.findOne({ email: email })
+            if (uniqueCheck) {
+                return res.status(400).send({ status: false, message: "This email is already Registered. Please provide another email, thank you🫡🫡🫡🫡." })
 
-        let emailPresent = await userModel.findOne({ email: email })
-        if (emailPresent) return res.status(400).send({ status: false, message: "Email is already exist" })
-
-        if (!phone) return res.status(400).send({ status: false, message: 'phone is required' })
-        if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "Please enter the valid Mobile Number" })
-
-        let phoneCheck = await userModel.findOne({ phone: phone })
-        if (phoneCheck) return res.status(400).send({ status: false, message: "Mobile Number already exists" })
-
-        if (!password) return res.status(400).send({ status: false, message: 'password is required' })
-        if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charcter , password length should be 8-15" })
+            }
+        }
 
 
+        if (phone) {
+            if (!isValidMobile(phone)) {
+                return res.status(400).send({ status: false, message: "Please provide valid phone number." })
+            }
+            const uniqueCheck = await userModel.findOne({ phone: phone })
+            if (uniqueCheck) {
+                return res.status(400).send({ status: false, message: "This phone number is already Registered. Please provide another phone number, thank you🫡🫡🫡🫡." })
+
+            }
+        }
+
+        if (password) {
+            if (!isValidPassword(password)) {
+                return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charachter , password length should be 8-15 charachter. ex - Rahul@123" })
+            }
+            bodyData.password = await bcrypt.hash(password, 10)
+        }
+
+
+
+        if(address){
+            const addressObj = JSON.parse(address)
+            if(addressObj.shipping){
+                if(!isValidadd(addressObj.shipping.street)){
+                    return res.staus(400).send({status : false , message : "Please provide valid shipping street."})
+                }
+            }
+        }
+
+        // if (bodyData.address.shipping.street) {
+        //     if(!isValidadd(bodyData.address.shipping.street)){
+        //         return res.staus(400).send({status : false , message : "Please provide valid shipping street."})
+        //     }
+        // }
+        // if (bodyData.address.shipping.city) {
+        //     if(!isValidadd(bodyData.address.shipping.city)){
+        //         return res.staus(400).send({status : false , message : "Please provide valid shipping city."})
+        //     }
+        // }
+        // if (bodyData.address.shipping.pincode) {
+        //     if(!isValidPin(bodyData.address.shipping.pincode)){
+        //         return res.staus(400).send({status : false , message : "Please provide valid shipping pincode."})
+        //     }
+        // }
+        // if (bodyData.address.billing.street) {
+        //     if(!isValidadd(bodyData.address.billing.street)){
+        //         return res.staus(400).send({status : false , message : "Please provide valid billing street."})
+        //     }
+        // }
+        // if (bodyData.address.billing.street) {
+        //     if(!isValidadd(bodyData.address.billing.city)){
+        //         return res.staus(400).send({status : false , message : "Please provide valid billing city."})
+        //     }
+        // }
+        // if (bodyData.address.billing.street) {
+        //     if(!isValidPin(bodyData.address.billing.pincode)){
+        //         return res.staus(400).send({status : false , message : "Please provide valid billing pincode."})
+        //     }
+        //}
+
+        
         if (file && file.length > 0) {
             bodyData.profileImage = await uploadFile(file[0])
         }
