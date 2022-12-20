@@ -167,7 +167,7 @@ const updateUser = async (req, res) => {
 
         if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Please provide some data in body to update." })
 
-        const { fname, lname, email, phone, password, address} = bodyData
+        const { fname, lname, email, phone, password } = bodyData
 
         if (typeof (fname) !== "undefined") {
             if (!isValidName(fname)) {
@@ -212,48 +212,47 @@ const updateUser = async (req, res) => {
         }
 
 
+        if (bodyData.address || bodyData.address == "") {
+            bodyData.address = JSON.parse(bodyData.address)
+            if (!isValidString(bodyData.address)) {
+                return res.status(400).send({ status: false, message: "Please provide address details!" });
+            }
 
-        if(address){
-            const addressObj = JSON.parse(address)
-            if(addressObj.shipping){
-                if(!isValidadd(addressObj.shipping.street)){
-                    return res.staus(400).send({status : false , message : "Please provide valid shipping street."})
+            if (bodyData.address.shipping) {
+                if (typeof (bodyData.address.shipping) !== 'object') { return res.status(400).send({ status: true, msg: "shipping address is required and must be in object format" }) }
+
+                if (bodyData.address.shipping.city) {
+                    if (!isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
                 }
+
+                if (bodyData.address.shipping.street) {
+                    if (!isValidadd(bodyData.address.shipping.street) || !isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
+                }
+
+                if (bodyData.address.shipping.pincode) {
+                    if (!isValidPin(bodyData.address.shipping.pincode) || !isValidString(bodyData.address.shipping.pincode)) { return res.status(400).send({ status: false, message: "shipping pincode is invalid" }) }
+                }
+
+            }
+
+            if (bodyData.address.billing) {
+                if (typeof (bodyData.address.billing) !== 'object') { return res.status(400).send({ status: true, msg: "billing address is required and must be in object format" }) }
+
+                if (bodyData.address.billing.city) {
+                    if (!isValidString(bodyData.address.billing.street)) { return res.status(400).send({ status: false, message: "billing street is invalid" }) }
+                }
+
+                if (bodyData.address.billing.street) {
+                    if (!isValidadd(bodyData.address.billing.street) || !isValidString(bodyData.address.billing.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
+                }
+
+                if (bodyData.address.billing.pincode) {
+                    if (!isValidPin(bodyData.address.billing.pincode) || !isValidString(bodyData.address.billing.pincode)) { return res.status(400).send({ status: false, message: "shipping pincode is invalid" }) }
+                }
+
             }
         }
 
-        // if (bodyData.address.shipping.street) {
-        //     if(!isValidadd(bodyData.address.shipping.street)){
-        //         return res.staus(400).send({status : false , message : "Please provide valid shipping street."})
-        //     }
-        // }
-        // if (bodyData.address.shipping.city) {
-        //     if(!isValidadd(bodyData.address.shipping.city)){
-        //         return res.staus(400).send({status : false , message : "Please provide valid shipping city."})
-        //     }
-        // }
-        // if (bodyData.address.shipping.pincode) {
-        //     if(!isValidPin(bodyData.address.shipping.pincode)){
-        //         return res.staus(400).send({status : false , message : "Please provide valid shipping pincode."})
-        //     }
-        // }
-        // if (bodyData.address.billing.street) {
-        //     if(!isValidadd(bodyData.address.billing.street)){
-        //         return res.staus(400).send({status : false , message : "Please provide valid billing street."})
-        //     }
-        // }
-        // if (bodyData.address.billing.street) {
-        //     if(!isValidadd(bodyData.address.billing.city)){
-        //         return res.staus(400).send({status : false , message : "Please provide valid billing city."})
-        //     }
-        // }
-        // if (bodyData.address.billing.street) {
-        //     if(!isValidPin(bodyData.address.billing.pincode)){
-        //         return res.staus(400).send({status : false , message : "Please provide valid billing pincode."})
-        //     }
-        //}
-
-        
         if (file && file.length > 0) {
             bodyData.profileImage = await uploadFile(file[0])
         }
