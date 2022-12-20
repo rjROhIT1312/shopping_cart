@@ -1,55 +1,83 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const userModel = require('../model/userModel')
-const {uploadFile}  = require('./awsController')
+const { uploadFile } = require('./awsController')
 
-const { isValidPassword, isValidEmail, isIdValid, isValidString, isValidName, isValidMobile } = require("../validator/validator")
+const { isValidPassword, isValidEmail, isIdValid, isValidString, isValidNumber, isValidadd, isValidPin, isValidName, isValidMobile } = require("../validator/validator")
 
+//REGISTER USER
 const registerUser = async (req, res) => {
     try {
         const bodyData = req.body
 
         const profileImage = req.files
 
-       if(typeof(bodyData)=="undefined"||Object.keys(bodyData).length==0) return res.status(400).send({status:false,message:"Request body doesn't be empty"})
+        if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
 
         const { fname, lname, email, phone, password, address } = bodyData
 
         if (!fname) return res.status(400).send({ status: false, message: 'fname is required' })
-        if(!isValidString(fname))  return res.status(400).send({status:false,message:"Please enter the valid fname"})
+        if (!isValidString(fname)) return res.status(400).send({ status: false, message: "Please enter the valid fname" })
+        if (!isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter the valid fname(SpecialCase & Number is not Allowed)" })
 
         if (!lname) return res.status(400).send({ status: false, message: 'lname is required' })
-        if(!isValidString(lname))  return res.status(400).send({status:false,message:"Please enter the valid lname"})
+        if (!isValidString(lname)) return res.status(400).send({ status: false, message: "Please enter the valid lname" })
+        if (!isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter the valid lname(SpecialCase & Number is not Allowed)" })
 
         if (!email) return res.status(400).send({ status: false, message: 'email is required' })
-        if(!isValidEmail(email))  return res.status(400).send({status:false,message:"Please enter the valid email"})
+        if (!isValidEmail(email)) return res.status(400).send({ status: false, message: "Please enter the valid email" })
 
-        let emailPresent = await userModel.findOne({email:email})
-        if (emailPresent) return res.status(400).send({status:false,message:"Email is already exist"})
-
-        //if (!profileImage) return res.status(400).send({ status: false, message: 'profileImage is required' })
+        let emailPresent = await userModel.findOne({ email: email })
+        if (emailPresent) return res.status(400).send({ status: false, message: "Email is already exist" })
 
         if (!phone) return res.status(400).send({ status: false, message: 'phone is required' })
-        if(!isValidMobile(phone))  return res.status(400).send({status:false,message:"Please enter the valid Mobile Number"})
+        if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "Please enter the valid Mobile Number" })
 
-        let phoneCheck = await userModel.findOne({phone:phone})
-        if(phoneCheck) return res.status(400).send({status:false,message:"Mobile Number already exists"})
+        let phoneCheck = await userModel.findOne({ phone: phone })
+        if (phoneCheck) return res.status(400).send({ status: false, message: "Mobile Number already exists" })
 
         if (!password) return res.status(400).send({ status: false, message: 'password is required' })
-        if(!isValidPassword(password))  return res.status(400).send({status:false,message:"Password must contain 1 Uppercase and Lowecase letter with at least 1 special charcter , password length should be 8-15"})
+        if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charcter , password length should be 8-15" })
 
-        if(profileImage && profileImage.length > 0){
-
-        let uploadProfileImage = await uploadFile(profileImage[0]);
-          bodyData.profileImage = uploadProfileImage;
-    
+        if (profileImage && profileImage.length > 0) {
+            let uploadProfileImage = await uploadFile(profileImage[0]);
+            bodyData.profileImage = uploadProfileImage;
         } else {
-          return res
-            .status(400)
-            .send({ status: false, message: "Upload profile Image" });
+            return res.status(400).send({ status: false, message: "Upload profile Image" });
         }
 
-        bodyData.password =await bcrypt.hash(password,10)
+        // ---------> Address <---------
+
+        //console.log(address)
+        let adressObj = JSON.parse(address)
+
+
+        if (!adressObj) { return res.status(400).send({ status: false, message: " Adress is mandatory" }) }
+
+        // ---------> Shipping Address <---------
+
+        //if (!(address.shipping.street)) return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
+        if (!isValidString(adressObj.shipping.street)) return res.status(400).send({ status: false, message: "shipping Street is mandatory" })
+        if (!isValidadd(adressObj.shipping.street)) return res.status(400).send({ status: false, message: "shipping street containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidString(adressObj.shipping.city)) return res.status(400).send({ status: false, message: "city is mandatory" })
+        if (!isValidadd(adressObj.shipping.city)) return res.status(400).send({ status: false, message: "shipping city containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidNumber(adressObj.shipping.pincode)) return res.status(400).send({ status: false, message: "shipping pincode is mandatory" })
+        if (!isValidPin(adressObj.shipping.pincode)) return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
+
+        // ---------> Billing Address <---------
+
+        //if (!isValidString(address.billing)) return res.status(400).send({ status: false, message: "Please provide address for billing" })
+        if (!isValidString(adressObj.billing.street)) return res.status(400).send({ status: false, message: "billing Street is mandatory" })
+        if (!isValidadd(adressObj.billing.street)) return res.status(400).send({ status: false, message: "billing street containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidString(adressObj.billing.city)) return res.status(400).send({ status: false, message: "city is mandatory" })
+        if (!isValidadd(adressObj.billing.city)) return res.status(400).send({ status: false, message: "billing city containt only these letters [a-zA-Z_ ,.-]" })
+        if (!isValidNumber(adressObj.billing.pincode)) return res.status(400).send({ status: false, message: " billing pincode is mandatory" })
+        if (!isValidPin(adressObj.billing.pincode)) return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
+
+
+        bodyData.password = await bcrypt.hash(password, 10)
+
+        bodyData.address = adressObj
 
         const userData = await userModel.create(bodyData)
 
@@ -60,27 +88,26 @@ const registerUser = async (req, res) => {
     }
 }
 
-//login user
 
+//LOGIN USER
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
 
         if (!email) return res.status(400).send({ status: false, message: 'email is required' })
+        if (!isValidEmail(email)) return res.status(400).send({ status: false, message: "Please enter the valid email" })
+
         if (!password) return res.status(400).send({ status: false, message: 'password is required' })
 
-        
         const userData = await userModel.findOne({ email: email })
-        if(!userData) return res.status(404).send({status:false,message:"Email is invalid"})
+        if (!userData) return res.status(404).send({ status: false, message: "This email is not Registered." })
 
         let checkPassword = await bcrypt.compare(password, userData.password)
-
-        if(!checkPassword){
-            return res.status(400).send({status : false , message : "Incorrect Password."})
+        if (!checkPassword) {
+            return res.status(401).send({ status: false, message: "Incorrect Password." })
         }
 
         const userId = userData._id
-
         const token = jwt.sign({ userId: userId.toString() }, "group30password", { expiresIn: "24h" })
 
         const data = {
@@ -95,22 +122,77 @@ const login = async (req, res) => {
 }
 
 
-// GET USER PROFILE
-
+//GET USER PROFILE
 const getUserProfile = async (req, res) => {
     try {
         const userId = req.params.userId
+        if (!isIdValid(userId)) {
+            return res.status(400).send({ status: false, message: "userId is invalid." })
+        }
 
         const userData = await userModel.findById(userId)
+        if (!userData) {
+            return res.status(404).send({ status: false, message: "No user found with this Id." })
+        }
 
-    
         return res.status(200).send({ status: true, message: "User profile details", data: userData })
-
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
-
 }
 
-module.exports = { registerUser, login, getUserProfile }
+
+//UPDATE USER PROFILE
+const updateUser = async (req, res) => {
+    try {
+        const userId = req.params.userId
+
+        const bodyData = req.body
+        const file = req.files
+
+        if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Please provide some data in body to update." })
+
+        const { fname, lname, email, phone, password, address } = bodyData
+
+        if (!fname) return res.status(400).send({ status: false, message: 'fname is required' })
+        if (!isValidString(fname)) return res.status(400).send({ status: false, message: "Please enter the valid fname" })
+        if (!isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter the valid fname(SpecialCase & Number is not Allowed)" })
+
+        if (!lname) return res.status(400).send({ status: false, message: 'lname is required' })
+        if (!isValidString(lname)) return res.status(400).send({ status: false, message: "Please enter the valid lname" })
+        if (!isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter the valid lname(SpecialCase & Number is not Allowed)" })
+
+        if (!email) return res.status(400).send({ status: false, message: 'email is required' })
+        if (!isValidEmail(email)) return res.status(400).send({ status: false, message: "Please enter the valid email" })
+
+        let emailPresent = await userModel.findOne({ email: email })
+        if (emailPresent) return res.status(400).send({ status: false, message: "Email is already exist" })
+
+        if (!phone) return res.status(400).send({ status: false, message: 'phone is required' })
+        if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "Please enter the valid Mobile Number" })
+
+        let phoneCheck = await userModel.findOne({ phone: phone })
+        if (phoneCheck) return res.status(400).send({ status: false, message: "Mobile Number already exists" })
+
+        if (!password) return res.status(400).send({ status: false, message: 'password is required' })
+        if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charcter , password length should be 8-15" })
+
+
+        if (file && file.length > 0) {
+            bodyData.profileImage = await uploadFile(file[0])
+        }
+
+        let updateData = await userModel.findByIdAndUpdate(
+            { _id: userId },
+            { $set: bodyData },
+            { new: true }
+        )
+
+        return res.status(200).send({ status: true, message: "data updated successfully", data: updateData })
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+module.exports = { registerUser, login, getUserProfile, updateUser }

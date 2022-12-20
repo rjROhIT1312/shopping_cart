@@ -6,8 +6,7 @@ aws.config.update({
     region: "ap-south-1"
 })
 
-// UPLOADILE FUNCTION
-
+// UPLOADFILE FUNCTION
 exports.uploadFile = async (file) => {
 
     return new Promise(function (resolve, reject) {
@@ -31,27 +30,3 @@ exports.uploadFile = async (file) => {
         })
     })
 }
-
-// module.exports = uploadFile
-
-// // CREATING AWS LINK
-
-// exports.createLink = async (req, res) => {
-//     try {
-//         let files = req.files
-
-//         if (files && files.length > 0) {
-
-//             let uploadedFileURL = await uploadFile(files[0])
-//             return res.status(201).send({ status: true, message: "file uploaded succesfully", data: uploadedFileURL })
-//         }
-//         else {
-//             return res.status(400).send({ status: false, message: "No file found" })
-//         }
-
-//     }
-//     catch (error) {
-//         console.log(error)
-//         return res.status(500).send({ status: false, message: error })
-//     }
-// }

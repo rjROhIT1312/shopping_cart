@@ -1,17 +1,23 @@
 const express = require('express')
 const router = express.Router()
 const userController = require('../controller/userController')
-const awsController = require('../controller/awsController')
+const auth = require('../middleware/auth')
 
+//REGISTER USER
+router.post('/register', userController.registerUser)
 
-router.post('/register',userController.registerUser)
-
+//LOGIN USER
 router.post('/login', userController.login)
 
-router.get('/user/:userId/profile', userController.getUserProfile)
+//GET USER PROFILE
+router.get('/user/:userId/profile', auth.authentication, userController.getUserProfile)
 
-router.all('/*', function(req, res){
-    res.status(400).send({status: false, message: 'Path not found'})
+//UPDATE USER PROFILE
+router.put('/user/:userId/profile', auth.authentication, auth.authorization, userController.updateUser)
+
+//WRONG PATH
+router.all('/*', function (req, res) {
+    res.status(400).send({ status: false, message: 'Path not found' })
 })
 
 module.exports = router
