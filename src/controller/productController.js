@@ -2,8 +2,8 @@ const productModel = require('../model/productModel')
 const { uploadFile } = require('./awsController')
 const { isValidString, isIdValid, isValidName, isValidProductName, isValidSize, isValidNumber, isValidPrice, isValidDecimalNumber } = require("../validator/validator")
 
-//CREATE PRODUCT
 
+//------------------------------------------------>CREATE PRODUCT<----------------------------------------------------------------------------------------------------------//
 const createProduct = async (req, res) => {
     try {
         const bodyData = req.body
@@ -92,9 +92,8 @@ const getProductByFilter = async (req, res) => {
             if (!isValidSize(size[0])) {
                 return res.status(400).send({ status: false, message: "Size should in this enum only ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']." })
             }
-            filter.availableSizes = size
+            filter.availableSizes = { $in: size }
         }
-
 
         if (typeof (name) !== "undefined") {
             if (!isValidString(name)) {
@@ -162,8 +161,6 @@ const getProductByParams = async (req, res) => {
     }
 }
 
-
-
 // UPDATE PRODUCT BY PRODUCTID
 const updateProduct = async (req, res) => {
     try {
@@ -215,25 +212,17 @@ const updateProduct = async (req, res) => {
 
 
         if (availableSizes || availableSizes == "") {
-            if (!isValidSize(data.address)) {
-                return res.status(400).send({ status: false, message: "Please provide valid size!" });
-            }
+            let size = availableSizes.toUpperCase().split(",")
+            for (let i = 0; i < size.length; i++)
+                if (!isValidSize(size[i])) {
+                    return res.status(400).send({ status: false, message: "Please provide valid size!" });
+                }
+            data.availableSizes = size
         }
 
         if (installments || installments == '') {
             if (!isValidPrice(installments)) return res.status(400).send({ status: false, message: "Please enter the valid installments" })
         }
-
-
-
-
-        // if (isDeleted) {
-
-        //     if (isDeleted != true || isDeleted != false) {
-        //         { return res.status(400).send({ status: false, message: "iDeleted should be boolean value" }) }
-        //     }
-        // }
-
 
         if (file && file.length > 0) {
             data.productImage = await uploadFile(file[0])
