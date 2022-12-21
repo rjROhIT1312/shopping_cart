@@ -4,6 +4,9 @@ const userController = require('../controller/userController')
 const productController = require('../controller/productController')
 const auth = require('../middleware/auth')
 
+
+// ****************************FEATURE I - User************************************
+
 //REGISTER USER
 router.post('/register', userController.registerUser)
 
@@ -16,6 +19,11 @@ router.get('/user/:userId/profile', auth.authentication, userController.getUserP
 //UPDATE USER PROFILE
 router.put('/user/:userId/profile', auth.authentication, auth.authorization, userController.updateUser)
 
+
+
+
+// ****************************FEATTURE II - Product**********************************
+
 //CREATE PRODUCT
 router.post('/products', productController.createProduct)
 
@@ -24,6 +32,16 @@ router.get('/products', productController.getProductByFilter)
 
 //GET PRODUCTS BY PARAMS
 router.get('/products/:productId', productController.getProductByParams)
+
+// UPDATE PRODUCTS BY PRODUCTID
+router.put("/products/:productId", productController.updateProduct)
+
+// DELETE PRODUCT BY PRODUCTID
+router.delete("/products/:productId", productController.deleteProduct)
+
+
+
+// ****************************FEATURE III - Cart***************************************
 
 //WRONG PATH
 router.all('/*', function (req, res) {

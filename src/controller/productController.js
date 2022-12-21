@@ -1,17 +1,20 @@
 const productModel = require('../model/productModel')
 const { uploadFile } = require('./awsController')
-const { isValidString, isIdValid, isValidProductName, isValidSize, isValidNumber, isValidPrice, isValidDecimalNumber } = require("../validator/validator")
+const { isValidString, isIdValid, isValidProductName, isValidSize, isValidNumber, isValidPrice, isValidDecimalNumber, isValidName } = require("../validator/validator")
+const { default: mongoose } = require('mongoose')
+const { findOne, findById } = require('../model/productModel')
+const { PI } = require('aws-sdk')
 
 //CREATE PRODUCT
 
 const createProduct = async (req, res) => {
     try {
-        const bodyData = req.body
+        const data = req.body
         const file = req.files
 
-        if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
+        if (typeof (data) == "undefined" || Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
 
-        const { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = bodyData
+        const { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
         if (!title) return res.status(400).send({ status: false, message: 'title is required' })
         if (!isValidString(title)) return res.status(400).send({ status: false, message: "Please enter the valid title" })
@@ -40,31 +43,24 @@ const createProduct = async (req, res) => {
         }
 
         if (availableSizes) {
-            bodyData.availableSizes = availableSizes.toUpperCase()
+            data.availableSizes = availableSizes.toUpperCase()
             let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-            if (!arr.includes(bodyData.availableSizes)) return res.status(400).send({ status: false, message: "availableSizes is not given format" })
+            if (!arr.includes(data.availableSizes)) return res.status(400).send({ status: false, message: "availableSizes is not given format" })
         }
 
         if (installments) {
             if (!isValidNumber(installments)) return res.status(400).send({ status: false, message: "Please enter the valid installments" })
         }
 
-        if (req.body.isDeleted == false) {
-            req.body.deletedAt = null
-        }
-        else {
-            req.body.deletedAt = Date.now()
-        }
-
 
         if (file && file.length > 0) {
             let uploadfile = await uploadFile(file[0]);
-            bodyData.productImage = uploadfile;
+            data.productImage = uploadfile;
         } else {
             return res.status(400).send({ status: false, message: "Upload profile Image" });
         }
 
-        const productData = await productModel.create(bodyData)
+        const productData = await productModel.create(data)
 
         return res.status(201).send({ status: true, message: "Product created successfully", data: productData })
     } catch (error) {
@@ -153,7 +149,7 @@ const getProductByParams = async (req, res) => {
             return res.status(400).send({ status: false, message: "product id is not valid" })
 
         const productData = await productModel.findById(productId)
-        if(!productData) return res.status(400).send({ status: false, message: "No product Found with this id" })
+        if (!productData) return res.status(400).send({ status: false, message: "No product Found with this id" })
 
         if (productData.isDeleted == true)
             return res.status(400).send({ status: false, message: "The product with this Id is Deleted." })
@@ -166,7 +162,117 @@ const getProductByParams = async (req, res) => {
     }
 }
 
+/*
+### PUT /products/:productId
+- Updates a product by changing at least one or all fields
+- Check if the productId exists (must have isDeleted false and is present in collection). If it doesn't, return an HTTP status 404 with a response body like [this](#error-response-structure)
+- __Response format__
+  - _**On success**_ - Return HTTP status 200. Also return the updated product document. The response should be a JSON object like [this](#successful-response-structure)
+  - _**On error**_ - Return a suitable error message with a valid HTTP status code. The response should be a JSON object like [this](#error-response-structure)
+*/
+//isDeleted, installments, availableSizes,style, productImage, isFreeShipping, price, description, title
+
+
+// UPDATE PRODUCT BY PRODUCTID
+const updateProduct = async (req, res) => {
+    try {
+        const productId = req.params.productId
+
+        const data = req.body
+        const file = req.files
+
+        if (typeof (data) == "undefined" || Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please provide some data in body to update." })
+
+        const { isDeleted, installments, availableSizes, style, productImage, isFreeShipping, price, description, title } = data
+
+        if (typeof (title) !== "undefined") {
+            if (!isValidName(title)) {
+                return res.status(400).send({ status: false, message: "Please provide valid Title." })
+            }
+        }
+
+        if (typeof (description) !== "undefined") {
+            if (!isValidName(description)) {
+                return res.status(400).send({ status: false, message: "Please provide valid description." })
+            }
+        }
+
+        if (price) {
+            if (!isValidPrice(price)) {
+                return res.status(400).send({ status: false, message: "Please provide valid price." })
+            }
+        }
+
+
+        if (isFreeShipping) {
+            if (isFreeShipping !== false || isFreeShipping !== true) {
+                return res.status(400).send({ status: false, message: "Please provide valid free shipping." })
+            }
+        }
+
+        if (style) {
+            if (!isValidName(style)) {
+                return res.status(400).send({ status: false, message: "please provide valid style" })
+            }
+        }
+
+
+        if (availableSizes) {
+            if (!isValidSize(data.address)) {
+                return res.status(400).send({ status: false, message: "Please provide valid size!" });
+            }
+
+            if (installments) {
+
+                if (!isValidPrice(installments)) {
+                    { return res.status(400).send({ status: false, message: "installment is invalid" }) }
+                }
+
+            }
+
+            if (isDeleted) {
+
+                if (isDeleted != true || isDeleted != false) {
+                    { return res.status(400).send({ status: false, message: "iDeleted should be boolean value" }) }
+                }
+            }
+        }
+
+        if (file && file.length > 0) {
+            data.productImage = await uploadFile(file[0])
+        }
+
+        let updateData = await productModel.findByIdAndUpdate(
+            { _id: productId },
+            { $set: data },
+            { new: true }
+        )
+
+        return res.status(200).send({ status: true, message: "data updated successfully", data: updateData })
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
 
 
 
-module.exports = { createProduct, getProductByFilter, getProductByParams }
+
+// DELETE PRODUCT BY PRODUCTID
+const deleteProduct = async function (req, res) {
+    try {
+        let productId = req.params.productId
+        if (!mongoose.Types.ObjectId.isValid(productId)) return res.status(400).send({ status: false, message: "product id not valid" })
+        let isProductIdPresent = await productModel.findById(productId)
+        if (!isProductIdPresent) return res.status(400).send({ status: false, message: "product is not exist" })
+        if (isProductIdPresent.isDeleted == true) return res.status(400).send({ status: false, message: "product is already deleted" })
+        await productModel.findByIdAndUpdate({ _id: productId }, { $set: { isDeleted: true, deletedAt: Date.now() } }, { new: true })
+        return res.status(200).send({ status: true, message: "deleted" })
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+
+module.exports = { createProduct, getProductByFilter, getProductByParams, deleteProduct, updateProduct }
