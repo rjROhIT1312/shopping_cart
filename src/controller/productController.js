@@ -1,20 +1,17 @@
 const productModel = require('../model/productModel')
 const { uploadFile } = require('./awsController')
-const { isValidString, isIdValid, isValidProductName, isValidSize, isValidNumber, isValidPrice, isValidDecimalNumber, isValidName } = require("../validator/validator")
-const { default: mongoose } = require('mongoose')
-const { findOne, findById } = require('../model/productModel')
-const { PI } = require('aws-sdk')
+const { isValidString, isIdValid, isValidProductName, isValidSize, isValidNumber, isValidPrice, isValidDecimalNumber } = require("../validator/validator")
 
 //CREATE PRODUCT
 
 const createProduct = async (req, res) => {
     try {
-        const data = req.body
+        const bodyData = req.body
         const file = req.files
 
-        if (typeof (data) == "undefined" || Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
+        if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
 
-        const { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
+        const { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = bodyData
 
         if (!title) return res.status(400).send({ status: false, message: 'title is required' })
         if (!isValidString(title)) return res.status(400).send({ status: false, message: "Please enter the valid title" })
@@ -42,25 +39,30 @@ const createProduct = async (req, res) => {
             if (!isValidString(style)) return res.status(400).send({ status: false, message: "Style should be in string only" })
         }
 
-        if (availableSizes) {
-            data.availableSizes = availableSizes.toUpperCase()
+        if (availableSizes || availableSizes == '') {
+            if (!isValidString(availableSizes)) {
+                return res.status(400).send({ status: false, message: "AvailableSize  can not be empty." })
+            }
+            let sizeArr = availableSizes.toUpperCase().split(",")
             let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-            if (!arr.includes(data.availableSizes)) return res.status(400).send({ status: false, message: "availableSizes is not given format" })
+            for (let i = 0; i < sizeArr.length; i++) {
+                if ((!arr.includes(sizeArr[i]))) return res.status(400).send({ status: false, message: "availableSizes is not given format, Please follow the size enum ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']" })
+            }
+            bodyData.availableSizes = sizeArr
         }
 
         if (installments) {
             if (!isValidNumber(installments)) return res.status(400).send({ status: false, message: "Please enter the valid installments" })
         }
 
-
         if (file && file.length > 0) {
             let uploadfile = await uploadFile(file[0]);
-            data.productImage = uploadfile;
+            bodyData.productImage = uploadfile;
         } else {
             return res.status(400).send({ status: false, message: "Upload profile Image" });
         }
 
-        const productData = await productModel.create(data)
+        const productData = await productModel.create(bodyData)
 
         return res.status(201).send({ status: true, message: "Product created successfully", data: productData })
     } catch (error) {
@@ -149,12 +151,10 @@ const getProductByParams = async (req, res) => {
             return res.status(400).send({ status: false, message: "product id is not valid" })
 
         const productData = await productModel.findById(productId)
-        if (!productData) return res.status(400).send({ status: false, message: "No product Found with this id" })
-
-        if (productData.isDeleted == true)
-            return res.status(400).send({ status: false, message: "The product with this Id is Deleted." })
         if (!productData)
             return res.status(404).send({ status: false, message: "Product not found with this productId." })
+        if (productData.isDeleted == true)
+            return res.status(400).send({ status: false, message: "The product with this Id is Deleted." })
 
         return res.status(200).send({ status: true, message: productData })
     } catch (error) {
