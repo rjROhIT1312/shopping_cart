@@ -6,21 +6,20 @@ const cartSchema = new mongoose.Schema(
         userId: {
             type: ObjectId,
             ref: "user",
+            required: true,
             unique: true
         },
-        items: {
-            type: [Object],
+        items: [{
             productId: {
                 type: ObjectId,
-                ref: "product",
-                required: true
+                required: true,
+                ref: 'product'
             },
             quantity: {
                 type: Number,
-                required: true,
-                default: 1
+                required: true
             }
-        },
+        }],
         totalPrice: {
             type: Number,
             required: true
