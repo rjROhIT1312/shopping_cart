@@ -34,21 +34,34 @@ router.get('/products', productController.getProductByFilter)
 //GET PRODUCTS BY PARAMS
 router.get('/products/:productId', productController.getProductByParams)
 
-// UPDATE PRODUCTS BY PRODUCTID
+//UPDATE PRODUCTS BY PRODUCTID
 router.put("/products/:productId", productController.updateProduct)
 
-// DELETE PRODUCT BY PRODUCTID
+//DELETE PRODUCT BY PRODUCTID
 router.delete("/products/:productId", productController.deleteProduct)
 
 
 
 // ****************************==>FEATURE III - Cart<==***************************************
 
-router.post("/users/:userId/cart", cartController.createCart)
+//CREATE CART
+router.post("/users/:userId/cart", auth.authentication, auth.authorization, cartController.createCart)
+
+//UPDATE CART
+router.put("/users/:userId/cart", auth.authentication, auth.authorization, cartController.updateCart)
+
+//GET CART
+router.get("/users/:userId/cart", auth.authentication, auth.authorization, cartController.getCart)
+
+//DELETE CART
+router.delete("/users/:userId/cart", auth.authentication, auth.authorization, cartController.deleteCart)
 
 //WRONG PATH
-router.all('/*', function (req, res) {
-    res.status(400).send({ status: false, message: 'Path not found' })
+router.all('/*', (req, res) => {
+    res.status(400).send({
+        status: false,
+        message: 'Path not found'
+    })
 })
 
 module.exports = router
