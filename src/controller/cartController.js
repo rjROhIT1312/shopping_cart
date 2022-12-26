@@ -344,7 +344,7 @@ const deleteCart = async function (req, res) {
         })
     }
     catch (error) {
-        return res.status(500).send({ dtatus: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 

@@ -3,6 +3,7 @@ const router = express.Router()
 const userController = require('../controller/userController')
 const productController = require('../controller/productController')
 const cartController = require("../controller/cartController")
+const orderController = require("../controller/orderController")
 const auth = require('../middleware/auth')
 
 
@@ -55,6 +56,15 @@ router.get("/users/:userId/cart", auth.authentication, auth.authorization, cartC
 
 //DELETE CART
 router.delete("/users/:userId/cart", auth.authentication, auth.authorization, cartController.deleteCart)
+
+
+
+// ****************************==>FEATURE IV - Order<==***************************************
+
+//CREATE ORDER
+router.post("/users/:userId/orders", orderController.createOrder)
+
+router.put("/users/:userId/orders", orderController.updateOrder)
 
 //WRONG PATH
 router.all('/*', (req, res) => {
