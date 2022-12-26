@@ -30,6 +30,8 @@ const registerUser = async (req, res) => {
         let emailPresent = await userModel.findOne({ email: email })
         if (emailPresent) return res.status(400).send({ status: false, message: "Email is already exist" })
 
+        if (profileImage.length == 0) return res.status(400).send({ status: false, message: 'profileImage is required' })
+
         if (!phone) return res.status(400).send({ status: false, message: 'phone is required' })
         if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "Please enter the valid Mobile Number" })
 
@@ -47,51 +49,56 @@ const registerUser = async (req, res) => {
         }
 
         // ---------> Address <---------
+        try {
+            if (!address) {
+                return res.status(400).send({
+                    status: false,
+                    message: "address is mendetory"
+                })
+            }
+            let adressObj = JSON.parse(address)
 
-        //console.log(address)
-        let adressObj = JSON.parse(address)
+            // ---------> Shipping Address <---------
 
+            if (!(adressObj.shipping))
+                return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
+            if (!isValidString(adressObj.shipping.street))
+                return res.status(400).send({ status: false, message: "shipping Street is mandatory" })
+            if (!isValidadd(adressObj.shipping.street))
+                return res.status(400).send({ status: false, message: "shipping street containt only these letters [a-zA-Z_ ,.-]" })
+            if (!isValidString(adressObj.shipping.city))
+                return res.status(400).send({ status: false, message: "city is mandatory" })
+            if (!isValidadd(adressObj.shipping.city))
+                return res.status(400).send({ status: false, message: "shipping city containt only these letters [a-zA-Z_ ,.-]" })
+            if (!isValidNumber(adressObj.shipping.pincode))
+                return res.status(400).send({ status: false, message: "shipping pincode is mandatory" })
+            if (!isValidPin(adressObj.shipping.pincode))
+                return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
 
-        if (!adressObj) { return res.status(400).send({ status: false, message: " Adress is mandatory" }) }
+            // ---------> Billing Address <---------
 
-        // ---------> Shipping Address <---------
+            if (!isValidString(adressObj.billing))
+                return res.status(400).send({ status: false, message: "Please provide address for billing" })
+            if (!isValidString(adressObj.billing.street))
+                return res.status(400).send({ status: false, message: "billing Street is mandatory" })
+            if (!isValidadd(adressObj.billing.street))
+                return res.status(400).send({ status: false, message: "billing street containt only these letters [a-zA-Z_ ,.-]" })
+            if (!isValidString(adressObj.billing.city))
+                return res.status(400).send({ status: false, message: "city is mandatory" })
+            if (!isValidadd(adressObj.billing.city))
+                return res.status(400).send({ status: false, message: "billing city containt only these letters [a-zA-Z_ ,.-]" })
+            if (!isValidNumber(adressObj.billing.pincode))
+                return res.status(400).send({ status: false, message: " billing pincode is mandatory" })
+            if (!isValidPin(adressObj.billing.pincode))
+                return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
 
-        if (!(adressObj.shipping))
-            return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
-        if (!isValidString(adressObj.shipping.street))
-            return res.status(400).send({ status: false, message: "shipping Street is mandatory" })
-        if (!isValidadd(adressObj.shipping.street))
-            return res.status(400).send({ status: false, message: "shipping street containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidString(adressObj.shipping.city))
-            return res.status(400).send({ status: false, message: "city is mandatory" })
-        if (!isValidadd(adressObj.shipping.city))
-            return res.status(400).send({ status: false, message: "shipping city containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidNumber(adressObj.shipping.pincode))
-            return res.status(400).send({ status: false, message: "shipping pincode is mandatory" })
-        if (!isValidPin(adressObj.shipping.pincode))
-            return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
+            bodyData.address = adressObj
 
-        // ---------> Billing Address <---------
-
-        if (!isValidString(adressObj.billing))
-            return res.status(400).send({ status: false, message: "Please provide address for billing" })
-        if (!isValidString(adressObj.billing.street))
-            return res.status(400).send({ status: false, message: "billing Street is mandatory" })
-        if (!isValidadd(adressObj.billing.street))
-            return res.status(400).send({ status: false, message: "billing street containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidString(adressObj.billing.city))
-            return res.status(400).send({ status: false, message: "city is mandatory" })
-        if (!isValidadd(adressObj.billing.city))
-            return res.status(400).send({ status: false, message: "billing city containt only these letters [a-zA-Z_ ,.-]" })
-        if (!isValidNumber(adressObj.billing.pincode))
-            return res.status(400).send({ status: false, message: " billing pincode is mandatory" })
-        if (!isValidPin(adressObj.billing.pincode))
-            return res.status(400).send({ status: false, message: "Please provide valid Pincode of 6 digits" })
-
-
+        }
+        catch (error) {
+            return res.status(500).send({ status: false, message: "Address is in invalid format." })
+        }
         bodyData.password = await bcrypt.hash(password, 10)
-
-        bodyData.address = adressObj
 
         const userData = await userModel.create(bodyData)
 

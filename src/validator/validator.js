@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 
 const isValidEmail = function (value) {
   let emailRegex =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-z\-0-9]+\.)+[a-z]{2,}))$/;
+    /^[a-z0-9_]{2,}@[a-z]{3,}.[com]{3}$/
   if (emailRegex.test(value)) return true;
 };
 
@@ -69,8 +69,8 @@ const isValidDecimalNumber = function (decimal) {
   return /^(\d+\.?\d*)$/.test(decimal);
 }
 
-const isValidSize = function(value){
-  return ["S", "XS","M","X", "L","XXL", "XL"].includes(value)
+const isValidSize = function (value) {
+  return ["S", "XS", "M", "X", "L", "XXL", "XL"].includes(value)
 }
 
 const isValidPrice = function (price) {
@@ -78,4 +78,4 @@ const isValidPrice = function (price) {
 }
 //=============================// module exports //================================
 
-module.exports = { isValidPassword, isValidEmail, isIdValid,isValidDecimalNumber, isValidString, isValidNumber, isValidName, isValidadd, isValidPin,isValidProductName, isValidMobile,isValidSize, isValidPrice }
+module.exports = { isValidPassword, isValidEmail, isIdValid, isValidDecimalNumber, isValidString, isValidNumber, isValidName, isValidadd, isValidPin, isValidProductName, isValidMobile, isValidSize, isValidPrice }
