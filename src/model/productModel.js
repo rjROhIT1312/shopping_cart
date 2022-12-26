@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema({
     installments: { type: Number },
 
     deletedAt: { type: Date }, //when the document is deleted
-    
+
     isDeleted: { type: Boolean, default: false },
 
 }, { timestamps: true })
