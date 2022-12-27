@@ -11,12 +11,12 @@ const auth = require('../middleware/auth')
 
 //REGISTER USER
 router.post('/register', userController.registerUser)
- 
+
 //LOGIN USER
 router.post('/login', userController.login)
 
 //GET USER PROFILE
-router.get('/user/:userId/profile', auth.authentication, userController.getUserProfile)
+router.get('/user/:userId/profile', auth.authentication, auth.authorization, userController.getUserProfile)
 
 //UPDATE USER PROFILE
 router.put('/user/:userId/profile', auth.authentication, auth.authorization, userController.updateUser)
