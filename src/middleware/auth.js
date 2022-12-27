@@ -43,7 +43,7 @@ const authorization = async (req, res, next) => {
         if (userId.toString() !== userIdfrmDecodedTkn) {
             return res.status(403).send({ status: false, message: "Access denied!!!" })
         }
-        next() 
+        next()
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })

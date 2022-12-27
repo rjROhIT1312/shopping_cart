@@ -15,7 +15,7 @@ const createProduct = async (req, res) => {
 
         if (!title) return res.status(400).send({ status: false, message: 'title is required' })
         if (!isValidString(title)) return res.status(400).send({ status: false, message: "Please enter the valid title" })
-        if (!isValidProductName(title)) return res.status(400).send({ status: false, message: "Please enter the valid title(SpecialCase & Number is not Allowed)" })
+        if (!isValidProductName(title)) return res.status(400).send({ status: false, message: "Please enter the valid title(SpecialCase is not Allowed)" })
 
         let titlePresent = await productModel.findOne({ title: title })
         if (titlePresent) return res.status(400).send({ status: false, message: "Title is already exists" })
@@ -23,7 +23,7 @@ const createProduct = async (req, res) => {
         if (!isValidString(description)) return res.status(400).send({ status: false, message: "Please enter the valid description" })
 
         if (!price) return res.status(400).send({ status: false, message: 'price is required' })
-        if (!isValidDecimalNumber(price)) return res.status(400).send({ status: false, message: "Please enter the valid price in format" })
+        if (!isValidDecimalNumber(price)) return res.status(400).send({ status: false, message: "Please enter the price in valid format." })
 
         if (!currencyId) return res.status(400).send({ status: false, message: 'currencyId is required' })
         if (currencyId) {
@@ -79,7 +79,7 @@ const getProductByFilter = async (req, res) => {
 
         let { name, pricesort, size, priceGreaterThan, priceLessThan } = queryData
 
-        let filter = { isDelted: false }
+        let filter = { isDeleted: false }
 
         if (typeof (size) !== "undefined") {
             if (!isValidString(size)) {
@@ -134,7 +134,7 @@ const getProductByFilter = async (req, res) => {
 
         const finalData = await productModel.find(filter).sort({ price: pricesort })
 
-        if (finalData.length == 0) return res.status(404).send({ status: false, message: "No data found with Filter." })
+        if (finalData.length == 0) return res.status(404).send({ status: false, message: "No data found with this Filter." })
 
         return res.status(200).send({ status: true, data: finalData })
 

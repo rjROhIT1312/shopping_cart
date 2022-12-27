@@ -62,9 +62,10 @@ router.delete("/users/:userId/cart", auth.authentication, auth.authorization, ca
 // ****************************==>FEATURE IV - Order<==***************************************
 
 //CREATE ORDER
-router.post("/users/:userId/orders", orderController.createOrder)
+router.post("/users/:userId/orders", auth.authentication, auth.authorization, orderController.createOrder)
 
-router.put("/users/:userId/orders", orderController.updateOrder)
+//UPDATE ORDER
+router.put("/users/:userId/orders", auth.authentication, auth.authorization, orderController.updateOrder)
 
 //WRONG PATH
 router.all('/*', (req, res) => {

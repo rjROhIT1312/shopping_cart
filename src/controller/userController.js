@@ -12,7 +12,8 @@ const registerUser = async (req, res) => {
 
         const profileImage = req.files
 
-        if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
+        if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0)
+            return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
 
         const { fname, lname, email, phone, password, address } = bodyData
 
@@ -30,9 +31,14 @@ const registerUser = async (req, res) => {
         let emailPresent = await userModel.findOne({ email: email })
         if (emailPresent) return res.status(400).send({ status: false, message: "Email is already exist" })
 
-        if (profileImage.length == 0) return res.status(400).send({ status: false, message: 'profileImage is required' })
+        if (profileImage && profileImage.length > 0) {
+            let uploadProfileImage = await uploadFile(profileImage[0]);
+            bodyData.profileImage = uploadProfileImage;
+        } else {
+            return res.status(400).send({ status: false, message: "Upload profile Image" });
+        }
 
-        if (!phone) return res.status(400).send({ status: false, message: 'phone is required' })
+        if (!phone) return res.status(400).send({ status: false, message: 'phone number is required' })
         if (!isValidMobile(phone)) return res.status(400).send({ status: false, message: "Please enter the valid Mobile Number" })
 
         let phoneCheck = await userModel.findOne({ phone: phone })
@@ -41,12 +47,7 @@ const registerUser = async (req, res) => {
         if (!password) return res.status(400).send({ status: false, message: 'password is required' })
         if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "Password must contain 1 Uppercase and Lowecase letter with at least 1 special charachter , password length should be 8-15 charachter. ex - Rahul@123" })
 
-        if (profileImage && profileImage.length > 0) {
-            let uploadProfileImage = await uploadFile(profileImage[0]);
-            bodyData.profileImage = uploadProfileImage;
-        } else {
-            return res.status(400).send({ status: false, message: "Upload profile Image" });
-        }
+
 
         // ---------> Address <---------
         try {
@@ -96,7 +97,7 @@ const registerUser = async (req, res) => {
 
         }
         catch (error) {
-            return res.status(500).send({ status: false, message: "Address is in invalid format." })
+            return res.status(400).send({ status: false, message: "Address is in invalid format." })
         }
         bodyData.password = await bcrypt.hash(password, 10)
 

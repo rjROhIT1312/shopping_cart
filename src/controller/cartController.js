@@ -43,8 +43,8 @@ const createCart = async function (req, res) {
 
         //=>Creating Item for add.
         let itemForAdd = {
-            "productId": productId,
-            "quantity": 1
+            productId: productId,
+            quantity: 1
         }
 
         if (cartId) {

@@ -74,7 +74,7 @@ const isValidSize = function (value) {
 }
 
 const isValidPrice = function (price) {
-  return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price)
+  return /^[1-9]\d{0,20}(?:\.\d{1,2})?$/.test(price)
 }
 //=============================// module exports //================================
 

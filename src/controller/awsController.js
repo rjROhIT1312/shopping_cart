@@ -16,7 +16,7 @@ exports.uploadFile = async (file) => {
         var uploadParams = {
             ACL: "public-read",
             Bucket: "classroom-training-bucket",
-            Key: "project-3(group-42)/" + file.originalname,
+            Key: "project-5(group-30)/" + file.originalname,
             Body: file.buffer
         }
 
@@ -24,8 +24,6 @@ exports.uploadFile = async (file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            //console.log(data)
-            //console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
     })

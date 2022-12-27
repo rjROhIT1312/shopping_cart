@@ -51,7 +51,7 @@ const createOrder = async function (req, res) {
 
         const createOrder = await orderModel.create(order)
 
-        const updateCart = await cartModel.findById(
+        const updateCart = await cartModel.findByIdAndUpdate(
             { _id: cartId },
             {
                 $set: {
