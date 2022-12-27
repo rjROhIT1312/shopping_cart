@@ -1,7 +1,7 @@
 const productModel = require("../model/productModel")
 const cartModel = require("../model/cartModel")
 const userModel = require("../model/userModel")
-const { isIdValid } = require("../validator/validator")
+const { isIdValid } = require("../validator/validator") 
 
 
 //----------------------------------------><< CREATECART >><--------------------------------------------//

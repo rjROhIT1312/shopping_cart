@@ -8,7 +8,7 @@ const createProduct = async (req, res) => {
     try {
         const bodyData = req.body
         const file = req.files
-
+ 
         if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Request body doesn't be empty" })
 
         const { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = bodyData

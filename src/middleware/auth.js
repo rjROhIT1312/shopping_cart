@@ -4,7 +4,7 @@ const { isIdValid } = require("../validator/validator")
 
 //AUTHENTICATION
 const authentication = async (req, res, next) => {
-    try {
+    try { 
         let token = req.headers["authorization"]
 
         if (!token) {

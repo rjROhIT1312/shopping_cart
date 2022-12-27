@@ -70,7 +70,7 @@ const createOrder = async function (req, res) {
 }
 
 //UPDATE ORDER
-const updateOrder = async function (req, res) {
+const updateOrder = async function (req, res) { 
     try {
         const userId = req.params.userId
         let isUSerPresent = await orderModel.findOne({ userId: userId })

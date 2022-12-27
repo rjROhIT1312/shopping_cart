@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema({
     currencyId: { type: String, required: true, trim: true }, //INR
 
     currencyFormat: { type: String, required: true, trim: true },//Rupee symbol
-
+ 
     isFreeShipping: { type: Boolean, default: false },
 
     productImage: { type: String, required: true, trim: true }, // s3 link

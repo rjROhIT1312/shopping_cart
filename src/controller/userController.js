@@ -167,11 +167,15 @@ const getUserProfile = async (req, res) => {
 
 //UPDATE USER PROFILE
 const updateUser = async (req, res) => {
-    try {
+    try { 
         const userId = req.params.userId
 
         const bodyData = req.body
-        const file = req.files
+        const profileImage = req.files
+        if (profileImage && profileImage.length > 0) {
+            let uploadProfileImage = await uploadFile(profileImage[0]);
+            bodyData.profileImage = uploadProfileImage;
+        } 
 
         if (typeof (bodyData) == "undefined" || Object.keys(bodyData).length == 0) return res.status(400).send({ status: false, message: "Please provide some data in body to update." })
 
@@ -263,11 +267,9 @@ const updateUser = async (req, res) => {
             } catch (err) {
                 return res.status(400).send({ status: false, message: "Address is in Invalid format. The correct format is {'shipping' : {'street' : 'rknagar', 'city' : 'bbsr', 'pincode' : 765013}, 'billing' : {'street' : 'rknagar', 'city' : 'bbsr', 'pincode' : 765013}" })
             }
-        } 
-
-        if (file && file.length > 0) {
-            bodyData.profileImage = await uploadFile(file[0])
         }
+
+
 
         let updateData = await userModel.findByIdAndUpdate(
             { _id: userId },
