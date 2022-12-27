@@ -223,12 +223,9 @@ const updateUser = async (req, res) => {
         if (bodyData.address != '') {
             try {
                 bodyData.address = JSON.parse(bodyData.address)
-                if (!isValidString(bodyData.address)) {
-                    return res.status(400).send({ status: false, message: "Please provide address details!" });
-                }
 
                 if (bodyData.address.shipping) {
-                    if (typeof (bodyData.address.shipping) !== 'object') { return res.status(400).send({ status: true, msg: "shipping address is required and must be in object format" }) }
+                    if (typeof (bodyData.address.shipping) !== 'object') { return res.status(400).send({ status: true, message: "shipping address is required and must be in object format" }) }
 
                     if (bodyData.address.shipping.city) {
                         if (!isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
