@@ -220,45 +220,50 @@ const updateUser = async (req, res) => {
         }
 
 
-        if (bodyData.address || bodyData.address == "") {
-            bodyData.address = JSON.parse(bodyData.address)
-            if (!isValidString(bodyData.address)) {
-                return res.status(400).send({ status: false, message: "Please provide address details!" });
+        if (bodyData.address != '') {
+            try {
+                bodyData.address = JSON.parse(bodyData.address)
+                if (!isValidString(bodyData.address)) {
+                    return res.status(400).send({ status: false, message: "Please provide address details!" });
+                }
+
+                if (bodyData.address.shipping) {
+                    if (typeof (bodyData.address.shipping) !== 'object') { return res.status(400).send({ status: true, msg: "shipping address is required and must be in object format" }) }
+
+                    if (bodyData.address.shipping.city) {
+                        if (!isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
+                    }
+
+                    if (bodyData.address.shipping.street) {
+                        if (!isValidadd(bodyData.address.shipping.street) || !isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
+                    }
+
+                    if (bodyData.address.shipping.pincode) {
+                        if (!isValidPin(bodyData.address.shipping.pincode) || !isValidString(bodyData.address.shipping.pincode)) { return res.status(400).send({ status: false, message: "shipping pincode is invalid" }) }
+                    }
+
+                }
+
+                if (bodyData.address.billing) {
+                    if (typeof (bodyData.address.billing) !== 'object') { return res.status(400).send({ status: true, msg: "billing address is required and must be in object format" }) }
+
+                    if (bodyData.address.billing.city) {
+                        if (!isValidString(bodyData.address.billing.street)) { return res.status(400).send({ status: false, message: "billing street is invalid" }) }
+                    }
+
+                    if (bodyData.address.billing.street) {
+                        if (!isValidadd(bodyData.address.billing.street) || !isValidString(bodyData.address.billing.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
+                    }
+
+                    if (bodyData.address.billing.pincode) {
+                        if (!isValidPin(bodyData.address.billing.pincode) || !isValidString(bodyData.address.billing.pincode)) { return res.status(400).send({ status: false, message: "shipping pincode is invalid" }) }
+                    }
+                }
+            } catch (err) {
+                return res.status(400).send({ status: false, message: "Address is in Invalid format. The correct format is {'shipping' : {'street' : 'rknagar', 'city' : 'bbsr', 'pincode' : 765013}, 'billing' : {'street' : 'rknagar', 'city' : 'bbsr', 'pincode' : 765013}" })
             }
-
-            if (bodyData.address.shipping) {
-                if (typeof (bodyData.address.shipping) !== 'object') { return res.status(400).send({ status: true, msg: "shipping address is required and must be in object format" }) }
-
-                if (bodyData.address.shipping.city) {
-                    if (!isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
-                }
-
-                if (bodyData.address.shipping.street) {
-                    if (!isValidadd(bodyData.address.shipping.street) || !isValidString(bodyData.address.shipping.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
-                }
-
-                if (bodyData.address.shipping.pincode) {
-                    if (!isValidPin(bodyData.address.shipping.pincode) || !isValidString(bodyData.address.shipping.pincode)) { return res.status(400).send({ status: false, message: "shipping pincode is invalid" }) }
-                }
-
-            }
-
-            if (bodyData.address.billing) {
-                if (typeof (bodyData.address.billing) !== 'object') { return res.status(400).send({ status: true, msg: "billing address is required and must be in object format" }) }
-
-                if (bodyData.address.billing.city) {
-                    if (!isValidString(bodyData.address.billing.street)) { return res.status(400).send({ status: false, message: "billing street is invalid" }) }
-                }
-
-                if (bodyData.address.billing.street) {
-                    if (!isValidadd(bodyData.address.billing.street) || !isValidString(bodyData.address.billing.street)) { return res.status(400).send({ status: false, message: "shipping street is invalid" }) }
-                }
-
-                if (bodyData.address.billing.pincode) {
-                    if (!isValidPin(bodyData.address.billing.pincode) || !isValidString(bodyData.address.billing.pincode)) { return res.status(400).send({ status: false, message: "shipping pincode is invalid" }) }
-                }
-
-            }
+        } else {
+            return res.status(400).send({ status: false, message: "Please provide address details!, It can not be empty." })
         }
 
         if (file && file.length > 0) {
