@@ -219,8 +219,12 @@ const updateUser = async (req, res) => {
             bodyData.password = await bcrypt.hash(password, 10)
         }
 
+        if (bodyData.address == "") {
+            return res.status(400).send({ status: false, message: 'address can not be empty' })
+        }
 
-        if (bodyData.address != '') {
+
+        if (bodyData.address) {
             try {
                 bodyData.address = JSON.parse(bodyData.address)
 
@@ -259,9 +263,7 @@ const updateUser = async (req, res) => {
             } catch (err) {
                 return res.status(400).send({ status: false, message: "Address is in Invalid format. The correct format is {'shipping' : {'street' : 'rknagar', 'city' : 'bbsr', 'pincode' : 765013}, 'billing' : {'street' : 'rknagar', 'city' : 'bbsr', 'pincode' : 765013}" })
             }
-        } else {
-            return res.status(400).send({ status: false, message: "Please provide address details!, It can not be empty." })
-        }
+        } 
 
         if (file && file.length > 0) {
             bodyData.profileImage = await uploadFile(file[0])

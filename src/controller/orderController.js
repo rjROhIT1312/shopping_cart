@@ -73,7 +73,6 @@ const createOrder = async function (req, res) {
 const updateOrder = async function (req, res) {
     try {
         const userId = req.params.userId
-        if (!isIdValid(userId)) return res.status(400).send({ status: false, message: "userId not valid" })
         let isUSerPresent = await orderModel.findOne({ userId: userId })
         if (!isUSerPresent) return res.status(400).send({ status: false, message: "user Id not exist" })
         const bodyData = req.body

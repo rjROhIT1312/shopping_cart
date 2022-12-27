@@ -248,7 +248,7 @@ const deleteProduct = async function (req, res) {
     try {
         let productId = req.params.productId
         if (!isIdValid(productId))
-            return res.status(400).send({ status: false, message: "The productId not valid!!!" })
+            return res.status(400).send({ status: false, message: "This productId is not valid!!!" })
 
         let isProductIdPresent = await productModel.findById(productId)
         if (!isProductIdPresent)

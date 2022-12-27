@@ -151,7 +151,7 @@ const updateCart = async (req, res) => {
         if (!userData) {
             return res.status(404).send({
                 status: false,
-                message: "user not found with thids Id."
+                message: "user not found with this Id."
             })
         }
 
@@ -181,7 +181,7 @@ const updateCart = async (req, res) => {
         if (!cartData) {
             return res.status(404).send({
                 status: false,
-                message: "cart not found wuth this Id."
+                message: "cart not found with this Id."
             })
         }
         const cartdbdata = await cartModel.findOne({ userId })
@@ -216,8 +216,8 @@ const updateCart = async (req, res) => {
             if (cartData.items[i].productId == productId) {
                 cartCheck = 1
                 if (removeProduct == 0 || cartData.items[i].quantity == 1) {
-                    totalPrice -= ((productData.price) * (cartData.items[i].quantity))
-                    totalItems -= 1
+                    totalPrice = totalPrice - ((productData.price) * (cartData.items[i].quantity))
+                    totalItems = totalItems - 1
                     arr.splice(i, 1)
                     break;
                 } else {
