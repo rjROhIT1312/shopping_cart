@@ -122,7 +122,7 @@ const updateOrder = async function (req, res) {
             })
         }
 
-        if (orderData.cancellable == false) {
+        if (orderData.cancellable == false && bodyData.status == "cancled") {
             return res.status(400).send({
                 status: false,
                 message: "can not update order status,cancellable key is false"
